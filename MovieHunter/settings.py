@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+from pathlib import Path
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#edit 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -24,7 +28,7 @@ SECRET_KEY = ')xttil7o#c&*nw8)d+n@nns-$py#7rv86!=l_t)-#9!ov65l5)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [".hbao.blog", ".localhost"]
+ALLOWED_HOSTS = [".localhost"]
 
 # Application definition
 
@@ -37,6 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'movie',
     'user',
+    'social_django',
+    'crispy_forms',
+    'verify_email',
+    'six',
+    #add time ago ... load humanize
+    'django.contrib.humanize',
+    'django_social_share',
+
 ]
 
 MIDDLEWARE = [
@@ -47,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'MovieHunter.urls'
@@ -63,6 +76,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                 'social_django.context_processors.backends',  #
+                'social_django.context_processors.login_redirect',  # 
+                'django.template.context_processors.media', # media
             ],
         },
     },
@@ -98,6 +114,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#add this
+AUTHENTICATION_BACKENDS = [
+    #'social_core.backends.linkedin.LinkedinOAuth2',
+    #'social_core.backends.instagram.InstagramOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -115,9 +139,47 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_URL = 'logout'
+LOGOUT_REDIRECT_URL = 'login'
+#facebook app
+SOCIAL_AUTH_FACEBOOK_KEY = '876304389878411'        # App ID
+SOCIAL_AUTH_FACEBOOK_SECRET = '4d73bb6d7b6059e8251a878572f923c7' 
 
+#Profile module
+AUTH_PROFILE_MODULE = 'user.UserProfile'
+
+#static config
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+
+# image storage - avatar 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = '/media/'
+
+# email - verify 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = os.environ.get('20160605@student.hust.edu.vn') 
+#EMAIL_HOST_PASSWORD = os.environ.get('aaa29121998')
+EMAIL_HOST_USER = '20160605@student.hust.edu.vn'
+EMAIL_HOST_PASSWORD = 'aaa29121998'
+DEFAULT_FROM_EMAIL = 'noreply<no_reply@domain.com>'
+
+
+
+
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+
+# add user url overite
+ABSOLUTE_URL_OVERRIDES = {
+    'auth.user': lambda u: "/detail/%s/" % u.username,
+}
+
+# timezone

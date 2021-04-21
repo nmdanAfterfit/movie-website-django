@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block mainbody %}
+
+<main class="container bootdey">
+<main class="main-content p-5" role="main">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-user-profile">
+                    <div class="profile-page-left">
+                        <div class="row">
+                            <div class="col-lg-12 mb-4">
+                                <div class="profile-picture profile-picture-lg bg-gradient bg-primary mb-4">
+                                    {% if profile.profile_picture %}
+                                        <img src="{{ profile.profile_picture.url }}" width="44" height="44">
+                                    {% else %}
+                                        <img src="/media/image/avatar.png" width="44" height="44">
+                                    {% endif %}
+                                </div>
+                                <a class="btn btn-primary btn-block btn-gradient waves-effect waves-light" href="#"> Follow </a>
+                            </div>
+                            <div class="col-sm-6">
+                                <h5 class="my-0">Followers</h5>
+                                <div class="h3 my-0">
+                                    <a href="#">682</a>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <h5 class="my-0">Following</h5>
+                                <div class="h3 my-0">
+                                    <a href="#">341</a>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5>
+                      <i class="batch-icon batch-icon-users"></i>
+                      Friends
+                    </h5>
+                        <div class="profile-page-block-outer clearfix">
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" width="44" height="44">
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5>
+                      <i class="batch-icon batch-icon-users"></i>
+                      Information
+                    </h5>
+                        <p class="float-right mt-2"> Birthday : {{birthday}}</p>
+                        {% if gender == 'M' %}
+                            <p class="float-right mt-2"> Gender : Male</p>
+                        {% else %}
+                            <p class="float-right mt-2"> Gender : Female</p>
+                        {% endif %}
+                    </div>
+                    <div class="profile-page-center">
+                        <h3 class="card-user-profile-name"> News Feeds </h3>
+
+
+                        <div class="comment-block">
+                            <div id="form-comment" class="form-group">
+                                <textarea class="form-control" id="comment-textarea" rows="2" placeholder="Say something for {{profile.user}}..."></textarea>
+                                <div class="media-feed-control clearfix">
+                                    <button onclick="comment()" type="button" class="btn btn-secondary btn-sm comment-reply float-right waves-effect waves-light">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <ul class="list-unstyled mt-5">
+                            <li class="media">
+
+                                <div id="comment-body" class="media-body">
+
+                                    <div class="media-body-reply-block">
+                                        <ul id="list-comment"  class="list-unstyled">
+                                            {% for post in posts %}
+                                                <li id="li-comment" class="media mt-4">
+                                                    <div class="profile-picture bg-gradient bg-primary mb-4">
+                                                        <img src="{{ post.author.profile.profile_picture.url}}" width="44" height="44">
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="media-title mt-0 mb-1">
+                                                            <a href="{{ post.author.profile.get_absolute_url }}">{{ post.author.username }}</a> <small> {{ post.date_posted }}</small>
+                                                        </div>
+                                                        <b> {{ post.content }} </b>
+                                                        <div class="media-feed-control">
+                                                            <a href="" id="likeButton">
+                                                                <input type="hidden" name="likePostID" value="{{ post.id }}">
+                                                                <i class="batch-icon batch-icon-heart-full" ></i> Like <span id="count-likes{{ post.id }}"> ({{post.total_likes}}) </span>
+                                                            </a>
+                                                            <a href="#">
+                                                                <i class="batch-icon batch-icon-speech-bubble-left-tip"></i> Comment <span id="count-comments{{ post.id }}"> ({{post.total_comments}}) </span>
+                                                            </a>
+                                                            <a href="" id="reportButton">
+                                                                <input type="hidden" name="reportPostID" value="{{ post.id }}">
+                                                                {% if request.user in post.reports.all %}
+                                                                    <i class="batch-icon batch-icon-flag"></i><span style="color: red" id="reports{{post.id}}"> Report </span>
+                                                                {% else %}
+                                                                    <i class="batch-icon batch-icon-flag"></i><span id="reports{{post.id}}"> Report </span>
+                                                                {% endif %}
+
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <li class="comment-reply" id="comment-reply">
+                                                        {% for reply  in post.get_all_reply %}
+                                                            <div class="media-title mt-0 mb-1">
+                                                                <a href="{{ reply.author.profile.get_absolute_url }}">{{ reply.author.username }}</a> <small> {{ reply.date_posted }}</small>
+                                                            </div>
+                                                            <b> {{ reply.content }} </b>
+                                                        {% endfor %}
+                                                    <hr>
+                                                        <form method="POST" class="form-reply" enctype="multipart/form-data">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" class="postID" name="postID" value="{{ post.id }}">
+                                                            <textarea class="form-control comment-reply-textarea" name="content" rows="2" placeholder="Reply post here ....."> </textarea>
+                                                            <button type="submit" class="btn btn-secondary btn-sm comment-reply float-right waves-effect waves-light"> Reply </button>
+                                                        </form>
+                                                    </li>
+                                                </li>
+                                                <hr>
+                                            {% endfor %}
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</div>
+    <script>
+        function comment() {
+            var content = $('#comment-textarea').val();
+            console.log(content);
+
+            if (content == '') {
+                Swal.fire('Comments cannot be empty');
+                return
+            }
+            ;
+            $.ajax({
+                type: "POST",
+                // bo sung dau gach cheo moi duoc
+                url: "",
+                data: {content: content, type : 'comment'},
+                processData: "application/json",
+                dataType: "json",
+                beforeSend:function (xhr,settings) {
+                    xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                },
+            }).done(function (data) {
+                console.log(data);
+                document.getElementById("comment-textarea").value = '' ;
+
+                 $("#comment-body").prepend(
+                     '<li class="media mt-4">' +
+                        '<div class="profile-picture bg-gradient bg-primary mb-4">' +
+                            '<img src="' + data.send_user_avatar +'"'  + 'width="44" height="44">' +
+                        '</div>' +
+                        '<div class="media-body">' +
+                            '<div class="media-title mt-0 mb-1">' +
+                                '<a href=' +'"'+ data.send_user_url + '"' +'>'  + data.send_user + '</a>' +  '<small>' + '   ' +    data.date_posted + '</small>'+
+                            '</div>' +
+                            data.content +
+                            '<div class="media-feed-control">' +
+                                '<a href="#" id="likeButton">'+
+                                    '<input type="hidden" name="likePostID" value="' + data.post_id + '">' +
+                                    '<i class="batch-icon batch-icon-heart-full"></i>' +'Like' +
+                                     '<span id="count-likes' + data.post_id+ '">' + ' ({{post.total_likes}})' + '</span>' +
+                                '</a>'+
+                                '<a href="#">'+
+                                    '<i class="batch-icon batch-icon-speech-bubble-left-tip"></i>' + 'Comment' + '<span id="count-comments' + data.post_id + '">'+ ' ({{post.total_comments}})'  + '</span>' +
+                                '</a>' +
+                                '<a href="#">' +
+                                    '<i class="batch-icon batch-icon-flag"></i>' + 'Report' +
+                                '</a>'+
+                            '</div>'+
+                        '</div>'+
+                    '</li>' +
+                    '<li>' +
+                        '<form method="POST" class="form-reply" enctype="multipart/form-data">' +
+                            '<input type="hidden" class="postID" name="postID" value="' + data.post_id +  '">' +
+                            '<textarea class="form-control comment-reply-textarea" name="content" rows="2" placeholder="Reply post here .....">' + '</textarea>' +
+                            '<button type="submit" class="btn btn-secondary btn-sm comment-reply float-right waves-effect waves-light"> Reply </button>'
+                        +'</form>' +
+                    '</li>'
+                );
+                Swal.fire(
+                    'Post success !',
+                    'You changed the profile !',
+                    'success'
+                );
+                // location.reload();
+
+
+            });
+
+        };
+
+
+        $(document).on('submit', '.form-reply', function (event){
+                event.preventDefault();
+                //remember the form element
+                var $form = $(this);
+
+
+
+                //disable the submit button and remember it for later
+                {#var $button = $form.find("button[type='submit']").attr('disabled', true);#}
+                // get dom by name
+                var $content = $form.find("textarea[name='content']");
+                // get dome by id
+                var $postID = $form.find(".postID");
+
+                var content =  $form.find("textarea[name='content']").val();
+                var postID =   $form.find("input[name='postID']").val();
+
+                console.log(content);
+                console.log(postID);
+
+                // now do ajax
+                $.ajax({
+                url: "",
+                type: 'POST',
+                datatype: 'json',
+                processData: "application/json",
+                data: {
+                    content: content,
+                    postID: postID,
+                    type: 'reply',
+                },
+                beforeSend:function (xhr,settings) {
+                    console.log("{{ csrf_token }}");
+                    xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                },
+            }).done(function (data){
+                $content.val('');
+                console.log(data);
+                $form.parent().prepend( '<div class="media-title mt-0 mb-1">' +
+                    '<a href="' + data.send_user_url + ' ">' + data.send_user  + '</a>' +  '<small>'  + data.date_posted + '</small>' +
+                    '</div>' + '<b>'+ data.content +  '</b>');
+
+                var countCommentID = '#count-comments' + data.to_post;
+                $(countCommentID).html(data.count_comments);
+
+
+
+                {#location.reload();#}
+
+                Swal.fire(
+                    'Succsess !',
+                    'You just reply !',
+                    'success'
+                );
+            });
+            });
+
+         $(document).on('click', '#likeButton', function (event) {
+                event.preventDefault();
+                var postID  = $(this).find("input[name='likePostID']").val();
+                var likeID = '#count-likes' + postID
+                alert(postID);
+
+                $.ajax({
+                    url : "{% url 'like-post'%}",
+                    type: 'POST',
+                    datatype: 'json',
+                    processData: "application/json",
+                    data: {
+                    postID: postID,
+                    type: 'like',
+                    status : 'True',
+                },
+                beforeSend:function (xhr,settings) {
+                    console.log("{{ csrf_token }}");
+                    xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                },
+            }).done(function (data) {
+                    if(data.type==-1){
+                        alert('erorr !');
+                    }
+                    else {
+                        // why with 1 id , count not run !!
+                        console.log(data.count_likes);
+                        $(likeID).html(data.count_likes);
+
+                    }
+
+
+                });
+         });
+
+
+
+
+
+          $(document).on('click', '#reportButton', function (event) {
+                event.preventDefault();
+                var postID  = $(this).find("input[name='reportPostID']").val();
+                var reportID = '#reports' + postID;
+                alert(reportID);
+                console.log(reportID);
+                $.ajax({
+                    url : "{% url 'report-post'%}",
+                    type: 'POST',
+                    datatype: 'json',
+                    processData: "application/json",
+                    data: {
+                    postID: postID,
+                    type: 'report',
+                    },
+                    beforeSend:function (xhr,settings) {
+                    console.log("{{ csrf_token }}");
+                    xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                },
+                }).done(function (data) {
+                    if(data.type==-1){
+                        alert('erorr !');
+                    }
+                    else {
+                        if(data.type=='report'){
+                            $(reportID).css("color", "red");
+                        }
+                        else {
+                            $(reportID).css("color", "black");
+                        }
+
+                    }
+                });
+          });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+{% endblock mainbody %}
